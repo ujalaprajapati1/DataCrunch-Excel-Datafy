@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | CSV Analytics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <h1 class="logo">Datafy</h1>
+    <ul>
+        <li class="active">Dashboard</li>
+        <li>Upload</li>
+        <li>Analytics</li>
+        <li>Charts</li>
+    </ul>
+</aside>
+
+<!-- Main -->
+<main class="main-content">
+    <header class="topbar">
+        <h2>CSV / Excel Analytics</h2>
+    </header>
+
+    <section class="content">
+
+        <!-- STATISTICS -->
+        {% if stats %}
+        <div class="card" style="grid-column:1/-1;">
+            <h3>Statistics ({{ selected_column }})</h3>
+
+            <form method="POST">
+                <select name="column" onchange="this.form.submit()" class="select-box">
+                    {% for col in numeric_columns %}
+                        <option value="{{ col }}" {% if col==selected_column %}selected{% endif %}>
+                            {{ col }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <div class="stats-grid" style="margin-top:15px;">
+                <div class="stat-card"><h4>Mean</h4><p>{{ stats.mean }}</p></div>
+                <div class="stat-card"><h4>Median</h4><p>{{ stats.median }}</p></div>
+                <div class="stat-card"><h4>Min</h4><p>{{ stats.min }}</p></div>
+                <div class="stat-card"><h4>Max</h4><p>{{ stats.max }}</p></div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- CHART BUILDER -->
+        {% if numeric_columns|length >= 2 %}
+        <div class="card" style="grid-column:1/-1;">
+            <h3>Build Chart</h3>
+
+            <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:15px;">
+
+                <!-- X Column -->
+                <select id="xColumn" class="select-box">
+                    <option value="">Select X-axis</option>
+                    {% for col in numeric_columns %}
+                        <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Y Column -->
+                <select id="yColumn" class="select-box">
+                    <option value="">Select Y-axis</option>
+                    {% for col in numeric_columns %}
+                        <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Chart Type -->
+                <select id="chartType" class="select-box">
+                    <option value="bar">Bar Chart</option>
+                    <option value="line">Line Chart</option>
+                </select>
+
+                <button onclick="drawChart()">Generate Chart</button>
+            </div>
+
+            <canvas id="dynamicChart"></canvas>
+        </div>
+        {% endif %}
+
+        <!-- TABLE -->
+        {% if table %}
+        <div class="card" style="grid-column:1/-1;">
+            <h3>Data Preview (First 10 Rows)</h3>
+            <div class="table-wrapper">
+                {{ table | safe }}
+            </div>
+        </div>
+        {% endif %}
+
+    </section>
+</main>
+
+<script>
+let chartInstance = null;
+
+// full dataset injected
+const fullData = {{ full_data | tojson }};
+const columns = {{ numeric_columns | tojson }};
+
+function drawChart() {
+    const xCol = document.getElementById("xColumn").value;
+    const yCol = document.getElementById("yColumn").value;
+    const type = document.getElementById("chartType").value;
+
+    if (!xCol || !yCol) {
+        alert("Please select both X and Y columns");
+        return;
+    }
+
+    const labels = fullData.map(row => row[xCol]);
+    const values = fullData.map(row => row[yCol]);
+
+    const ctx = document.getElementById("dynamicChart").getContext("2d");
+
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: yCol + " vs " + xCol,
+                data: values,
+                backgroundColor: "#1DB954",
+                borderColor: "#1DB954",
+                fill: type === "line"
+            }]
+        }
+    });
+}
+</script>
+
+</body>
+</html>

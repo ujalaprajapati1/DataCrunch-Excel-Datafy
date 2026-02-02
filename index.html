@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV / Excel Analytics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h1 class="logo">Datafy</h1>
+        <nav>
+            <ul>
+                <li class="active">Dashboard</li>
+                <li>Upload File</li>
+                <li>Analytics</li>
+                <li>Charts</li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <h2>CSV / Excel Analytics Dashboard</h2>
+        </header>
+
+        <section class="content">
+
+            <!-- Welcome Card -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3>Welcome 👋</h3>
+                <p>
+                    Upload your CSV or Excel file and instantly get insights,
+                    statistics, and beautiful charts — Spotify-style ✨
+                </p>
+            </div>
+
+            <!-- Upload Card (IMPORTANT FIX) -->
+            <div class="card">
+                <h3>Upload File</h3>
+                <p style="color:#b3b3b3; margin-bottom:12px;">
+                    Supported formats: CSV, Excel (.xlsx)
+                </p>
+
+                <form action="/upload" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="file" accept=".csv,.xlsx" required>
+                    <br><br>
+                    <button class="upload-btn">Upload & Analyze</button>
+                </form>
+            </div>
+
+        </section>
+    </main>
+
+</body>
+</html>
